@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitReady — Git & GitHub for Absolute Beginners</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg2: #161b22;
+    --bg3: #21262d;
+    --bg4: #30363d;
+    --border: #30363d;
+    --border2: #444c56;
+    --accent: #58a6ff;
+    --accent2: #1f6feb;
+    --accent-dim: rgba(88,166,255,0.1);
+    --accent-glow: rgba(88,166,255,0.25);
+    --text: #e6edf3;
+    --text2: #8b949e;
+    --text3: #6e7681;
+    --green: #3fb950;
+    --green-dim: rgba(63,185,80,0.12);
+    --yellow: #d29922;
+    --yellow-dim: rgba(210,153,34,0.12);
+    --red: #f85149;
+    --red-dim: rgba(248,81,73,0.12);
+    --purple: #bc8cff;
+    --orange: #ffa657;
+    --terminal-bg: #0a0e13;
+    --terminal-green: #39d353;
+    --terminal-prompt: #58a6ff;
+    --radius: 8px;
+    --radius2: 12px;
+    --transition: 0.2s ease;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; font-size: 16px; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  ::selection { background: var(--accent2); color: #fff; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--border2); }
+
+  /* ── NAVBAR ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    background: rgba(13,17,23,0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px;
+  }
+
+  .nav-logo {
+    font-size: 1.2rem; font-weight: 800; letter-spacing: -0.5px;
+    color: var(--text); text-decoration: none;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .nav-logo span { color: var(--accent); }
+  .nav-logo .logo-icon {
+    width: 28px; height: 28px;
+    background: var(--accent); border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; color: #0d1117; font-weight: 900;
+  }
+
+  .nav-links {
+    display: flex; gap: 4px; list-style: none; align-items: center;
+  }
+  .nav-links a {
+    color: var(--text2); text-decoration: none; font-size: 0.82rem;
+    font-weight: 500; padding: 5px 10px; border-radius: var(--radius);
+    transition: color var(--transition), background var(--transition);
+    white-space: nowrap;
+  }
+  .nav-links a:hover { color: var(--text); background: var(--bg3); }
+
+  .hamburger {
+    display: none; flex-direction: column; gap: 5px;
+    cursor: pointer; padding: 4px; background: none; border: none;
+  }
+  .hamburger span {
+    display: block; width: 22px; height: 2px;
+    background: var(--text2); border-radius: 2px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity: 0; }
+  .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  .mobile-menu {
+    display: none; position: fixed; top: 60px; left: 0; right: 0;
+    background: var(--bg2); border-bottom: 1px solid var(--border);
+    padding: 12px 0; z-index: 999;
+    flex-direction: column;
+  }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu a {
+    color: var(--text2); text-decoration: none; font-size: 0.9rem;
+    font-weight: 500; padding: 10px 24px;
+    transition: color var(--transition), background var(--transition);
+  }
+  .mobile-menu a:hover { color: var(--text); background: var(--bg3); }
+
+  /* ── PROGRESS INDICATOR ── */
+  .progress-indicator {
+    position: fixed; left: 20px; top: 50%;
+    transform: translateY(-50%);
+    display: flex; flex-direction: column; gap: 8px;
+    z-index: 100;
+  }
+  .prog-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--bg4); border: 1.5px solid var(--border2);
+    cursor: pointer; transition: all 0.3s ease;
+    position: relative;
+  }
+  .prog-dot::after {
+    content: attr(data-label);
+    position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+    font-size: 0.7rem; font-weight: 600; color: var(--text2);
+    white-space: nowrap; opacity: 0; pointer-events: none;
+    background: var(--bg3); padding: 3px 8px; border-radius: 4px;
+    border: 1px solid var(--border);
+    transition: opacity 0.2s;
+  }
+  .prog-dot:hover::after { opacity: 1; }
+  .prog-dot.active {
+    background: var(--accent); border-color: var(--accent);
+    transform: scale(1.4);
+  }
+  .prog-dot.passed {
+    background: var(--green); border-color: var(--green);
+  }
+
+  /* ── LAYOUT ── */
+  main { padding-top: 60px; }
+
+  section {
+    padding: 80px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  .container-wide {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ── SECTION LABELS ── */
+  .section-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--accent);
+    background: var(--accent-dim); border: 1px solid rgba(88,166,255,0.2);
+    padding: 4px 10px; border-radius: 20px; margin-bottom: 16px;
+  }
+
+  h2.section-title {
+    font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 800;
+    letter-spacing: -0.5px; color: var(--text); margin-bottom: 12px;
+    line-height: 1.2;
+  }
+
+  .section-subtitle {
+    font-size: 1rem; color: var(--text2); margin-bottom: 40px;
+    font-weight: 400; max-width: 600px;
+  }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    border-bottom: 1px solid var(--border);
+    position: relative; overflow: hidden;
+    padding: 0;
+  }
+
+  .hero-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% -20%, rgba(88,166,255,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(31,111,235,0.08) 0%, transparent 60%);
+  }
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 60px 60px;
+    opacity: 0.3;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent);
+  }
+
+  .hero-content {
+    position: relative; z-index: 1;
+    text-align: center; padding: 0 24px;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 20px; padding: 6px 16px; margin-bottom: 28px;
+    font-size: 0.8rem; font-weight: 600; color: var(--text2);
+    animation: fadeUp 0.8s ease 0.1s both;
+  }
+  .hero-badge .dot {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--green);
+    box-shadow: 0 0 6px var(--green); animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; } 50% { opacity: 0.4; }
+  }
+
+  h1 {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 900; line-height: 1.05;
+    letter-spacing: -2px; color: var(--text);
+    margin-bottom: 20px;
+    animation: fadeUp 0.8s ease 0.2s both;
+  }
+  h1 .accent { color: var(--accent); }
+  h1 .line2 {
+    display: block;
+    background: linear-gradient(135deg, var(--text) 0%, var(--text2) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    font-size: clamp(1rem, 2vw, 1.2rem); color: var(--text2); font-weight: 400;
+    max-width: 500px; margin: 0 auto 36px;
+    animation: fadeUp 0.8s ease 0.3s both;
+  }
+
+  .hero-btns {
+    display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+    animation: fadeUp 0.8s ease 0.4s both;
+  }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 24px; border-radius: var(--radius); font-family: 'Outfit', sans-serif;
+    font-weight: 600; font-size: 0.9rem; cursor: pointer;
+    text-decoration: none; transition: all var(--transition); border: none;
+  }
+  .btn-primary {
+    background: var(--accent); color: #0d1117;
+    box-shadow: 0 0 0 0 var(--accent-glow);
+  }
+  .btn-primary:hover {
+    background: #79baff; transform: translateY(-2px);
+    box-shadow: 0 8px 24px var(--accent-glow);
+  }
+  .btn-secondary {
+    background: transparent; color: var(--text);
+    border: 1.5px solid var(--border2);
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+
+  .hero-stats {
+    display: flex; justify-content: center; gap: 40px; margin-top: 52px;
+    animation: fadeUp 0.8s ease 0.5s both;
+    flex-wrap: wrap;
+  }
+  .stat { text-align: center; }
+  .stat-num { font-size: 1.6rem; font-weight: 900; color: var(--text); letter-spacing: -1px; }
+  .stat-label { font-size: 0.75rem; color: var(--text3); font-weight: 500; margin-top: 2px; }
+
+  /* ── WHAT IS GIT ── */
+  .diagram {
+    display: flex; align-items: center; gap: 0;
+    margin: 36px 0; flex-wrap: wrap; justify-content: center;
+  }
+  .diagram-node {
+    background: var(--bg2); border: 1.5px solid var(--border);
+    border-radius: var(--radius2); padding: 20px 24px; text-align: center;
+    min-width: 160px; flex: 1; max-width: 200px;
+    transition: border-color var(--transition), transform var(--transition);
+  }
+  .diagram-node:hover { border-color: var(--accent); transform: translateY(-3px); }
+  .diagram-node .icon {
+    font-size: 1.8rem; margin-bottom: 8px;
+    display: block;
+  }
+  .diagram-node h3 { font-size: 0.9rem; font-weight: 700; color: var(--text); }
+  .diagram-node p { font-size: 0.75rem; color: var(--text2); margin-top: 4px; }
+
+  .diagram-arrow {
+    font-size: 1.5rem; color: var(--accent); padding: 0 12px;
+    flex-shrink: 0; font-weight: 700;
+  }
+
+  .concept-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px;
+  }
+  .concept-card {
+    background: var(--bg2); border: 1.5px solid var(--border);
+    border-radius: var(--radius2); padding: 20px; position: relative;
+    overflow: hidden; transition: border-color var(--transition);
+  }
+  .concept-card:hover { border-color: var(--border2); }
+  .concept-card::before {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 3px; height: 100%;
+  }
+  .concept-card.git::before { background: var(--orange); }
+  .concept-card.github::before { background: var(--accent); }
+  .concept-card h3 {
+    font-size: 1rem; font-weight: 700; margin-bottom: 8px; display: flex;
+    align-items: center; gap: 8px;
+  }
+  .concept-card p { font-size: 0.87rem; color: var(--text2); line-height: 1.65; }
+
+  /* ── CODE BLOCKS ── */
+  .code-wrap {
+    position: relative; margin: 16px 0; border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .code-header {
+    background: var(--bg3); border-bottom: 1px solid var(--border);
+    padding: 8px 14px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .code-header .dots { display: flex; gap: 6px; }
+  .code-header .dots span {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+  .code-header .dots span:nth-child(1) { background: #ff5f57; }
+  .code-header .dots span:nth-child(2) { background: #febc2e; }
+  .code-header .dots span:nth-child(3) { background: #28c840; }
+  .code-header .code-lang {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; color: var(--text3);
+  }
+  .copy-btn {
+    background: var(--bg4); border: 1px solid var(--border);
+    color: var(--text2); font-family: 'Outfit', sans-serif;
+    font-size: 0.72rem; font-weight: 600; cursor: pointer;
+    padding: 4px 10px; border-radius: 5px;
+    transition: all var(--transition); display: flex; align-items: center; gap: 5px;
+  }
+  .copy-btn:hover { background: var(--bg4); border-color: var(--accent); color: var(--accent); }
+  .copy-btn.copied { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+  pre.hljs { margin: 0 !important; border-radius: 0 !important; }
+  pre code.hljs { padding: 16px 20px !important; font-size: 0.84rem !important; font-family: 'JetBrains Mono', monospace !important; }
+
+  /* ── INSTALL SECTION ── */
+  .install-steps {
+    display: flex; flex-direction: column; gap: 16px; margin-top: 28px;
+  }
+  .install-step {
+    background: var(--bg2); border: 1.5px solid var(--border);
+    border-radius: var(--radius2); padding: 20px 24px;
+    display: flex; gap: 16px; align-items: flex-start;
+    transition: border-color var(--transition);
+  }
+  .install-step:hover { border-color: var(--border2); }
+  .step-num {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--accent-dim); border: 1.5px solid rgba(88,166,255,0.3);
+    color: var(--accent); font-weight: 700; font-size: 0.85rem;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .install-step-content h3 {
+    font-size: 0.95rem; font-weight: 700; margin-bottom: 8px; color: var(--text);
+  }
+
+  .download-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--accent); color: #0d1117; font-weight: 700;
+    font-size: 0.85rem; padding: 10px 20px; border-radius: var(--radius);
+    text-decoration: none; transition: all var(--transition);
+    font-family: 'Outfit', sans-serif;
+  }
+  .download-btn:hover { background: #79baff; transform: translateY(-2px); }
+
+  /* ── REPO CARDS ── */
+  .repo-steps {
+    display: flex; flex-direction: column; gap: 0; margin-top: 28px;
+    border: 1.5px solid var(--border); border-radius: var(--radius2); overflow: hidden;
+  }
+  .repo-step {
+    background: var(--bg2); padding: 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex; gap: 20px; align-items: flex-start;
+    transition: background var(--transition);
+  }
+  .repo-step:last-child { border-bottom: none; }
+  .repo-step:hover { background: var(--bg3); }
+  .repo-step-num {
+    width: 36px; height: 36px; border-radius: var(--radius);
+    background: var(--accent2); color: #fff; font-weight: 800; font-size: 1rem;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .repo-step-content { flex: 1; }
+  .repo-step-content h3 { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+  .repo-step-content p { font-size: 0.87rem; color: var(--text2); }
+  .placeholder-img {
+    background: var(--bg3); border: 1.5px dashed var(--border2);
+    border-radius: var(--radius); padding: 28px 20px;
+    text-align: center; color: var(--text3); font-size: 0.8rem;
+    margin-top: 10px; font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── TERMINAL SECTION ── */
+  .terminal-wrapper {
+    background: var(--terminal-bg); border: 1.5px solid var(--border);
+    border-radius: var(--radius2); overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .terminal-header {
+    background: var(--bg3); padding: 12px 16px;
+    display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .terminal-header .dots { display: flex; gap: 6px; }
+  .terminal-header .dots span {
+    width: 12px; height: 12px; border-radius: 50%;
+  }
+  .terminal-header .dots span:nth-child(1) { background: #ff5f57; }
+  .terminal-header .dots span:nth-child(2) { background: #febc2e; }
+  .terminal-header .dots span:nth-child(3) { background: #28c840; }
+  .terminal-header .title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem; color: var(--text3); margin-left: 8px;
+  }
+
+  .terminal-steps { padding: 0; }
+  .t-step {
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.2s;
+  }
+  .t-step:last-child { border-bottom: none; }
+  .t-step-header {
+    padding: 14px 20px; cursor: pointer;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .t-step-header:hover { background: rgba(255,255,255,0.03); }
+  .t-step-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; color: var(--terminal-prompt);
+    background: rgba(88,166,255,0.1); border: 1px solid rgba(88,166,255,0.2);
+    padding: 2px 7px; border-radius: 4px; flex-shrink: 0;
+  }
+  .t-step-label { font-size: 0.85rem; color: var(--text2); font-weight: 500; flex: 1; }
+  .t-step-cmd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem; color: var(--terminal-green); font-weight: 500;
+  }
+  .t-step-chevron {
+    color: var(--text3); font-size: 0.75rem; transition: transform 0.2s;
+  }
+  .t-step.expanded .t-step-chevron { transform: rotate(90deg); }
+
+  .t-step-body {
+    display: none; padding: 0 20px 16px 20px;
+  }
+  .t-step.expanded .t-step-body { display: block; }
+
+  .terminal-line {
+    padding: 3px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.83rem;
+    display: flex; align-items: flex-start; gap: 8px;
+  }
+  .terminal-line .prompt { color: var(--terminal-prompt); flex-shrink: 0; }
+  .terminal-line .cmd { color: var(--terminal-green); }
+  .terminal-line .comment { color: var(--text3); font-style: italic; font-size: 0.76rem; }
+
+  .t-copy-btn {
+    background: rgba(88,166,255,0.08); border: 1px solid rgba(88,166,255,0.2);
+    color: var(--accent); font-family: 'Outfit', sans-serif;
+    font-size: 0.72rem; font-weight: 600; cursor: pointer;
+    padding: 4px 10px; border-radius: 5px; margin-top: 8px;
+    transition: all var(--transition);
+  }
+  .t-copy-btn:hover { background: rgba(88,166,255,0.15); }
+  .t-copy-btn.copied { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+
+  /* ── ERRORS COLLAPSIBLE ── */
+  .error-panel {
+    background: var(--red-dim); border: 1.5px solid rgba(248,81,73,0.2);
+    border-radius: var(--radius); margin-top: 12px; overflow: hidden;
+  }
+  .error-panel-header {
+    padding: 10px 14px; cursor: pointer; display: flex;
+    align-items: center; gap: 8px; user-select: none;
+    font-size: 0.82rem; font-weight: 600; color: var(--red);
+  }
+  .error-panel-header:hover { background: rgba(248,81,73,0.05); }
+  .error-panel-body { display: none; padding: 0 14px 12px; }
+  .error-panel.open .error-panel-body { display: block; }
+  .error-item { margin-top: 10px; }
+  .error-item .error-cmd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem; color: var(--red); font-weight: 600;
+  }
+  .error-item .error-fix { font-size: 0.8rem; color: var(--text2); margin-top: 3px; }
+
+  /* ── ALT UPLOAD ── */
+  .alt-upload {
+    background: var(--bg2); border: 1.5px solid var(--border);
+    border-radius: var(--radius2); padding: 20px 24px; margin-top: 24px;
+  }
+  .alt-upload h3 {
+    font-size: 0.95rem; font-weight: 700; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .alt-upload p { font-size: 0.87rem; color: var(--text2); }
+
+  /* ── GIT COMMANDS GRID ── */
+  .cmd-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px; margin-top: 28px;
+  }
+  .cmd-card {
+    background: var(--bg2); border: 1.5px solid var(--border);
+    border-radius: var(--radius2); padding: 18px;
+    transition: border-color var(--transition), transform var(--transition);
+    position: relative; overflow: hidden;
+  }
+  .cmd-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .cmd-card::after {
+    content: ''; position: absolute; top: 0; right: 0;
+    width: 60px; height: 60px;
+    background: radial-gradient(circle at top right, rgba(88,166,255,0.06) 0%, transparent 70%);
+  }
+  .cmd-card .command {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.88rem; font-weight: 700; color: var(--accent);
+    margin-bottom: 6px; display: flex; align-items: center; gap: 6px;
+  }
+  .cmd-card .command::before { content: '$'; color: var(--text3); }
+  .cmd-card .desc { font-size: 0.82rem; color: var(--text2); margin-bottom: 10px; }
+  .cmd-card .example {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem; background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 5px; padding: 6px 10px; color: var(--terminal-green);
+  }
+
+  /* ── CMD TABLE ── */
+  .search-box {
+    position: relative; margin-bottom: 20px;
+  }
+  .search-box input {
+    width: 100%; background: var(--bg2); border: 1.5px solid var(--border);
+    border-radius: var(--radius); padding: 10px 16px 10px 40px;
+    color: var(--text); font-family: 'Outfit', sans-serif;
+    font-size: 0.9rem; transition: border-color var(--transition);
+    outline: none;
+  }
+  .search-box input:focus { border-color: var(--accent); }
+  .search-box input::placeholder { color: var(--text3); }
+  .search-box .search-icon {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    color: var(--text3); font-size: 0.9rem; pointer-events: none;
+  }
+
+  .cmd-tabs {
+    display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap;
+  }
+  .tab-btn {
+    background: var(--bg2); border: 1.5px solid var(--border);
+    color: var(--text2); font-family: 'Outfit', sans-serif;
+    font-size: 0.8rem; font-weight: 600; padding: 6px 14px;
+    border-radius: 20px; cursor: pointer; transition: all var(--transition);
+  }
+  .tab-btn.active { background: var(--accent2); border-color: var(--accent); color: #fff; }
+  .tab-btn:hover:not(.active) { border-color: var(--border2); color: var(--text); }
+
+  .cmd-table-wrap {
+    border: 1.5px solid var(--border); border-radius: var(--radius2); overflow: hidden;
+  }
+  table {
+    width: 100%; border-collapse: collapse;
+  }
+  thead tr { background: var(--bg3); }
+  thead th {
+    padding: 12px 16px; text-align: left; font-size: 0.78rem;
+    font-weight: 700; color: var(--text2); text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  tbody tr {
+    border-top: 1px solid var(--border);
+    transition: background var(--transition);
+  }
+  tbody tr:hover { background: var(--bg3); }
+  tbody tr.hidden { display: none; }
+  tbody td {
+    padding: 11px 16px; font-size: 0.84rem;
+    vertical-align: middle;
+  }
+  tbody td:first-child {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent); font-weight: 600; font-size: 0.82rem;
+  }
+  tbody td:nth-child(2) { color: var(--text); }
+  tbody td:nth-child(3) {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text3); font-size: 0.78rem;
+  }
+
+  /* ── WIN+R CARDS ── */
+  .winr-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px; margin-top: 28px;
+  }
+  .winr-card {
+    background: var(--bg2); border: 1.5px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+    cursor: pointer; transition: all var(--transition);
+    display: flex; flex-direction: column; gap: 4px;
+    position: relative; overflow: hidden;
+  }
+  .winr-card:hover {
+    border-color: var(--accent); background: var(--bg3);
+    transform: translateY(-2px);
+  }
+  .winr-card:active { transform: translateY(0); }
+  .winr-card .winr-cmd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem; font-weight: 700; color: var(--accent);
+  }
+  .winr-card .winr-desc { font-size: 0.8rem; color: var(--text2); }
+  .winr-copy-hint {
+    position: absolute; top: 8px; right: 8px;
+    font-size: 0.65rem; color: var(--text3); opacity: 0;
+    transition: opacity var(--transition);
+  }
+  .winr-card:hover .winr-copy-hint { opacity: 1; }
+  .winr-card.copied { border-color: var(--green); }
+  .winr-card.copied .winr-cmd { color: var(--green); }
+
+  /* ── WARNING BANNER ── */
+  .warning-banner {
+    background: var(--yellow-dim); border: 1.5px solid rgba(210,153,34,0.3);
+    border-radius: var(--radius); padding: 14px 18px; margin-bottom: 28px;
+    display: flex; align-items: center; gap: 12px;
+    font-size: 0.87rem; color: var(--yellow); font-weight: 600;
+  }
+  .warning-banner .icon { font-size: 1.2rem; flex-shrink: 0; }
+
+  /* ── REPAIR STEPS ── */
+  .repair-steps {
+    display: flex; flex-direction: column; gap: 0;
+    border: 1.5px solid var(--border); border-radius: var(--radius2); overflow: hidden;
+    margin-top: 28px;
+  }
+  .repair-step {
+    background: var(--bg2); padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex; gap: 16px; align-items: flex-start;
+  }
+  .repair-step:last-child { border-bottom: none; }
+  .repair-step .r-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--bg3); border: 1.5px solid var(--border2);
+    color: var(--text2); font-weight: 700; font-size: 0.8rem;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .repair-step h3 { font-size: 0.9rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .repair-step p { font-size: 0.83rem; color: var(--text2); }
+
+  .info-box {
+    background: var(--accent-dim); border: 1.5px solid rgba(88,166,255,0.2);
+    border-radius: var(--radius); padding: 14px 18px; margin-top: 20px;
+    font-size: 0.85rem; color: var(--text2);
+  }
+  .info-box strong { color: var(--accent); }
+
+  /* ── PRO TIPS ── */
+  .tips-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px; margin-top: 28px;
+  }
+  .tip-card {
+    background: var(--bg2); border: 1.5px solid var(--border);
+    border-radius: var(--radius2); padding: 20px;
+    transition: border-color var(--transition);
+  }
+  .tip-card:hover { border-color: var(--border2); }
+  .tip-card .tip-icon { font-size: 1.4rem; margin-bottom: 10px; display: block; }
+  .tip-card h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 6px; }
+  .tip-card p { font-size: 0.82rem; color: var(--text2); line-height: 1.6; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--bg); border-top: 1px solid var(--border);
+    padding: 40px 24px; text-align: center;
+  }
+  .footer-tagline {
+    font-size: 1.1rem; font-weight: 800; color: var(--text);
+    letter-spacing: -0.3px; margin-bottom: 16px;
+  }
+  .footer-tagline span { color: var(--accent); }
+  .footer-links {
+    display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .footer-links a {
+    color: var(--text2); text-decoration: none; font-size: 0.85rem;
+    font-weight: 500; transition: color var(--transition);
+  }
+  .footer-links a:hover { color: var(--accent); }
+  .footer-copy { font-size: 0.75rem; color: var(--text3); }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--bg3); border: 1px solid var(--green);
+    color: var(--green); font-size: 0.82rem; font-weight: 600;
+    padding: 10px 16px; border-radius: var(--radius);
+    opacity: 0; transform: translateY(10px);
+    transition: all 0.3s ease; pointer-events: none; z-index: 9999;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* ── DISM vs SFC ── */
+  .compare-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0;
+  }
+  .compare-card {
+    background: var(--bg2); border: 1.5px solid var(--border);
+    border-radius: var(--radius2); padding: 20px;
+  }
+  .compare-card h3 {
+    font-size: 0.9rem; font-weight: 700; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .compare-card h3 .badge {
+    font-size: 0.65rem; padding: 2px 7px; border-radius: 10px;
+    font-weight: 700; letter-spacing: 0.05em;
+  }
+  .badge-high { background: var(--yellow-dim); color: var(--yellow); }
+  .badge-low { background: var(--green-dim); color: var(--green); }
+  .compare-card ul { list-style: none; }
+  .compare-card ul li {
+    font-size: 0.82rem; color: var(--text2); padding: 4px 0;
+    display: flex; align-items: flex-start; gap: 8px;
+  }
+  .compare-card ul li::before { content: '→'; color: var(--accent); flex-shrink: 0; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+    .hamburger { display: flex; }
+    .progress-indicator { display: none; }
+    .concept-grid { grid-template-columns: 1fr; }
+    .compare-grid { grid-template-columns: 1fr; }
+    .diagram { gap: 8px; }
+    .diagram-arrow { display: none; }
+    section { padding: 56px 0; }
+    h1 { letter-spacing: -1px; }
+    .hero-stats { gap: 24px; }
+    thead th:nth-child(3), tbody td:nth-child(3) { display: none; }
+  }
+
+  @media (max-width: 480px) {
+    .winr-grid { grid-template-columns: 1fr 1fr; }
+    .cmd-grid { grid-template-columns: 1fr; }
+    .tips-grid { grid-template-columns: 1fr; }
+    .hero-btns { flex-direction: column; align-items: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav>
+  <a href="#hero" class="nav-logo">
+    <div class="logo-icon">G</div>
+    Git<span>Ready</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#what-is-git">What is Git</a></li>
+    <li><a href="#installing">Install</a></li>
+    <li><a href="#create-repo">Repo</a></li>
+    <li><a href="#uploading">Upload</a></li>
+    <li><a href="#everyday-commands">Commands</a></li>
+    <li><a href="#cmd-commands">CMD</a></li>
+    <li><a href="#winr">Win+R</a></li>
+    <li><a href="#repair">Repair</a></li>
+    <li><a href="#pro-tips">Tips</a></li>
+  </ul>
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#what-is-git" onclick="closeMobile()">What is Git?</a>
+  <a href="#installing" onclick="closeMobile()">Installing Git</a>
+  <a href="#create-repo" onclick="closeMobile()">Create Repo</a>
+  <a href="#uploading" onclick="closeMobile()">Upload Project</a>
+  <a href="#everyday-commands" onclick="closeMobile()">Git Commands</a>
+  <a href="#cmd-commands" onclick="closeMobile()">CMD Commands</a>
+  <a href="#winr" onclick="closeMobile()">Win+R Cheatsheet</a>
+  <a href="#repair" onclick="closeMobile()">System Repair</a>
+  <a href="#pro-tips" onclick="closeMobile()">Pro Tips</a>
+</div>
+
+<!-- ── PROGRESS DOTS ── -->
+<div class="progress-indicator" id="progressIndicator">
+  <div class="prog-dot" data-label="Hero" data-section="hero"></div>
+  <div class="prog-dot" data-label="What is Git" data-section="what-is-git"></div>
+  <div class="prog-dot" data-label="Install" data-section="installing"></div>
+  <div class="prog-dot" data-label="Create Repo" data-section="create-repo"></div>
+  <div class="prog-dot" data-label="Upload" data-section="uploading"></div>
+  <div class="prog-dot" data-label="Git Commands" data-section="everyday-commands"></div>
+  <div class="prog-dot" data-label="CMD Commands" data-section="cmd-commands"></div>
+  <div class="prog-dot" data-label="Win+R" data-section="winr"></div>
+  <div class="prog-dot" data-label="Repair" data-section="repair"></div>
+  <div class="prog-dot" data-label="Pro Tips" data-section="pro-tips"></div>
+</div>
+
+<main>
+
+<!-- ── SECTION 1: HERO ── -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      100% Free · No Account Needed · No BS
+    </div>
+    <h1>
+      Git &amp; GitHub for
+      <span class="line2">Absolute Beginners</span>
+    </h1>
+    <p class="hero-sub">From zero to your first push — no confusion, no fluff. Just the commands you actually need.</p>
+    <div class="hero-btns">
+      <a href="#installing" class="btn btn-primary">▶ Start with Git</a>
+      <a href="#cmd-commands" class="btn btn-secondary">⌘ Jump to CMD Commands</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">10+</div><div class="stat-label">Git Commands</div></div>
+      <div class="stat"><div class="stat-num">50+</div><div class="stat-label">CMD Commands</div></div>
+      <div class="stat"><div class="stat-num">112</div><div class="stat-label">Win+R Shortcuts</div></div>
+      <div class="stat"><div class="stat-num">0</div><div class="stat-label">Paywalls</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 2: WHAT IS GIT ── -->
+<section id="what-is-git">
+  <div class="container">
+    <div class="section-tag">📖 Concept</div>
+    <h2 class="section-title">What is Git &amp; GitHub?</h2>
+    <p class="section-subtitle">Two different things. People confuse them constantly. Let's fix that.</p>
+
+    <div class="diagram">
+      <div class="diagram-node">
+        <span class="icon">💻</span>
+        <h3>Your Machine</h3>
+        <p>Where you write code &amp; work locally</p>
+      </div>
+      <div class="diagram-arrow">→</div>
+      <div class="diagram-node" style="border-color: rgba(255,166,87,0.4);">
+        <span class="icon">🔧</span>
+        <h3>Git</h3>
+        <p>Tracks changes, saves snapshots locally</p>
+      </div>
+      <div class="diagram-arrow">→</div>
+      <div class="diagram-node" style="border-color: rgba(88,166,255,0.4);">
+        <span class="icon">☁️</span>
+        <h3>GitHub</h3>
+        <p>Cloud storage for your code. Shareable &amp; backed up</p>
+      </div>
+    </div>
+
+    <div class="concept-grid">
+      <div class="concept-card git">
+        <h3>🔧 Git</h3>
+        <p>Git is a free tool you install on your computer. It tracks every change you make to your code — think of it like "Ctrl+Z on steroids" with a full history of every save. It runs entirely on your machine with no internet required.</p>
+      </div>
+      <div class="concept-card github">
+        <h3>🐙 GitHub</h3>
+        <p>GitHub is a website (owned by Microsoft) where you can upload your Git-tracked code to the cloud. It lets you share your projects, collaborate with others, and keep your work backed up so you never lose it. Think Google Drive, but built for developers.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 3: INSTALLING GIT ── -->
+<section id="installing">
+  <div class="container">
+    <div class="section-tag">⚙️ Setup</div>
+    <h2 class="section-title">Installing Git on Windows</h2>
+    <p class="section-subtitle">Three steps. Ten minutes. You'll never do this again.</p>
+
+    <div class="install-steps">
+      <div class="install-step">
+        <div class="step-num">1</div>
+        <div class="install-step-content">
+          <h3>Download Git for Windows</h3>
+          <p style="font-size:0.87rem;color:var(--text2);margin-bottom:12px;">Get the official installer from git-scm.com. Use all the default options during setup — they're fine.</p>
+          <a href="https://git-scm.com/download/win" target="_blank" class="download-btn">
+            ⬇ Download Git for Windows
+          </a>
+        </div>
+      </div>
+
+      <div class="install-step">
+        <div class="step-num">2</div>
+        <div class="install-step-content">
+          <h3>Verify the installation</h3>
+          <p style="font-size:0.87rem;color:var(--text2);margin-bottom:10px;">Open CMD or Git Bash and run this. You should see a version number.</p>
+          <div class="code-wrap">
+            <div class="code-header">
+              <div class="dots"><span></span><span></span><span></span></div>
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+            </div>
+            <pre><code class="language-bash">git --version
+# Expected output: git version 2.x.x.windows.x</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="install-step">
+        <div class="step-num">3</div>
+        <div class="install-step-content">
+          <h3>First-time setup — tell Git who you are</h3>
+          <p style="font-size:0.87rem;color:var(--text2);margin-bottom:10px;">You only do this once. Git stamps every commit with your name and email. Use your GitHub email.</p>
+          <div class="code-wrap">
+            <div class="code-header">
+              <div class="dots"><span></span><span></span><span></span></div>
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+            </div>
+            <pre><code class="language-bash">git config --global user.name "Your Name"
+git config --global user.email "you@email.com"
+
+# Verify it worked:
+git config --list</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 4: CREATE REPO ── -->
+<section id="create-repo">
+  <div class="container">
+    <div class="section-tag">🐙 GitHub</div>
+    <h2 class="section-title">Creating a GitHub Repository</h2>
+    <p class="section-subtitle">A "repo" is just a folder for your project on GitHub. Here's how to make one.</p>
+
+    <div class="repo-steps">
+      <div class="repo-step">
+        <div class="repo-step-num">1</div>
+        <div class="repo-step-content">
+          <h3>Sign in to GitHub</h3>
+          <p>Go to <a href="https://github.com" target="_blank" style="color:var(--accent)">github.com</a> and log in. If you don't have an account, create one — it's free.</p>
+          <div class="placeholder-img">[ Screenshot: GitHub homepage with Sign In button ]</div>
+        </div>
+      </div>
+      <div class="repo-step">
+        <div class="repo-step-num">2</div>
+        <div class="repo-step-content">
+          <h3>Click "+" → "New repository"</h3>
+          <p>Look for the <strong style="color:var(--text)">+</strong> icon in the top-right corner of the page, next to your profile picture. Click it, then select <strong style="color:var(--text)">New repository</strong>.</p>
+          <div class="placeholder-img">[ Screenshot: GitHub top navbar showing "+" dropdown menu ]</div>
+        </div>
+      </div>
+      <div class="repo-step">
+        <div class="repo-step-num">3</div>
+        <div class="repo-step-content">
+          <h3>Name it, set to Public, click Create</h3>
+          <p>Give your repo a clear name (no spaces — use hyphens like <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--accent)">my-portfolio</code>). Set it to <strong style="color:var(--text)">Public</strong>, leave everything else as-is, and click <strong style="color:var(--green)">Create repository</strong>.</p>
+          <div class="placeholder-img">[ Screenshot: New repository form — name field, Public/Private toggle, Create button ]</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 5: UPLOADING PROJECT ── -->
+<section id="uploading">
+  <div class="container">
+    <div class="section-tag">🚀 Core Skill</div>
+    <h2 class="section-title">Uploading Your Local Project</h2>
+    <p class="section-subtitle">The real deal. Click each step to expand it — copy the command and run it in CMD.</p>
+
+    <div class="terminal-wrapper">
+      <div class="terminal-header">
+        <div class="dots"><span></span><span></span><span></span></div>
+        <span class="title">Command Prompt — Your Project Upload Walkthrough</span>
+      </div>
+      <div class="terminal-steps">
+
+        <!-- Step 1 -->
+        <div class="t-step" onclick="toggleStep(this)">
+          <div class="t-step-header">
+            <span class="t-step-num">STEP 1</span>
+            <span class="t-step-label">Switch to your project's drive</span>
+            <span class="t-step-cmd">E:</span>
+            <span class="t-step-chevron">▶</span>
+          </div>
+          <div class="t-step-body">
+            <div class="terminal-line">
+              <span class="prompt">C:\Users\You&gt;</span>
+              <span class="cmd">E:</span>
+            </div>
+            <div class="terminal-line" style="margin-top:6px;">
+              <span style="color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:0.8rem;">ℹ️ If your project is on C: drive, skip this. Replace E: with whatever drive letter your folder is on.</span>
+            </div>
+            <button class="t-copy-btn" onclick="event.stopPropagation();copyText('E:',this)">📋 Copy</button>
+            <div class="error-panel">
+              <div class="error-panel-header" onclick="event.stopPropagation();toggleError(this)">
+                ⚠ Common errors with this step <span style="margin-left:auto;font-size:0.7rem;color:var(--text3)">▼</span>
+              </div>
+              <div class="error-panel-body">
+                <div class="error-item">
+                  <div class="error-cmd">"The system cannot find the drive specified"</div>
+                  <div class="error-fix">→ The drive letter doesn't exist. Open File Explorer and check what drive your files are on.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="t-step" onclick="toggleStep(this)">
+          <div class="t-step-header">
+            <span class="t-step-num">STEP 2</span>
+            <span class="t-step-label">Navigate to your project folder</span>
+            <span class="t-step-cmd">cd Portfolio\MyProject</span>
+            <span class="t-step-chevron">▶</span>
+          </div>
+          <div class="t-step-body">
+            <div class="terminal-line">
+              <span class="prompt">E:\&gt;</span>
+              <span class="cmd">cd Portfolio\MyProject</span>
+            </div>
+            <div class="terminal-line" style="margin-top:6px;">
+              <span style="color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:0.8rem;">ℹ️ Replace "Portfolio\MyProject" with the actual path to your folder. Use Tab to autocomplete.</span>
+            </div>
+            <button class="t-copy-btn" onclick="event.stopPropagation();copyText('cd Portfolio\\MyProject',this)">📋 Copy</button>
+            <div class="error-panel">
+              <div class="error-panel-header" onclick="event.stopPropagation();toggleError(this)">
+                ⚠ Common errors with this step <span style="margin-left:auto;font-size:0.7rem;color:var(--text3)">▼</span>
+              </div>
+              <div class="error-panel-body">
+                <div class="error-item">
+                  <div class="error-cmd">"The system cannot find the path"</div>
+                  <div class="error-fix">→ Folder name is wrong. Use <code style="color:var(--accent)">dir</code> to list folders in the current directory and find the correct name.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="t-step" onclick="toggleStep(this)">
+          <div class="t-step-header">
+            <span class="t-step-num">STEP 3</span>
+            <span class="t-step-label">Initialize Git in this folder</span>
+            <span class="t-step-cmd">git init</span>
+            <span class="t-step-chevron">▶</span>
+          </div>
+          <div class="t-step-body">
+            <div class="terminal-line">
+              <span class="prompt">E:\Portfolio\MyProject&gt;</span>
+              <span class="cmd">git init</span>
+            </div>
+            <div class="terminal-line" style="color:var(--text3);margin-top:4px;font-family:'JetBrains Mono',monospace;font-size:0.78rem;">
+              Initialized empty Git repository in E:/Portfolio/MyProject/.git/
+            </div>
+            <div class="terminal-line" style="margin-top:6px;">
+              <span style="color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:0.8rem;">ℹ️ This creates a hidden .git folder. Do NOT delete it — it's Git's brain.</span>
+            </div>
+            <button class="t-copy-btn" onclick="event.stopPropagation();copyText('git init',this)">📋 Copy</button>
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="t-step" onclick="toggleStep(this)">
+          <div class="t-step-header">
+            <span class="t-step-num">STEP 4</span>
+            <span class="t-step-label">Connect to your GitHub repo</span>
+            <span class="t-step-cmd">git remote add origin ...</span>
+            <span class="t-step-chevron">▶</span>
+          </div>
+          <div class="t-step-body">
+            <div class="terminal-line">
+              <span class="prompt">E:\Portfolio\MyProject&gt;</span>
+              <span class="cmd">git remote add origin https://github.com/USERNAME/REPO.git</span>
+            </div>
+            <div class="terminal-line" style="margin-top:6px;">
+              <span style="color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:0.8rem;">ℹ️ Replace USERNAME with your GitHub username and REPO with your repo name. Get this URL from GitHub → green "Code" button.</span>
+            </div>
+            <button class="t-copy-btn" onclick="event.stopPropagation();copyText('git remote add origin https://github.com/USERNAME/REPO.git',this)">📋 Copy</button>
+            <div class="error-panel">
+              <div class="error-panel-header" onclick="event.stopPropagation();toggleError(this)">
+                ⚠ Common errors with this step <span style="margin-left:auto;font-size:0.7rem;color:var(--text3)">▼</span>
+              </div>
+              <div class="error-panel-body">
+                <div class="error-item">
+                  <div class="error-cmd">"remote origin already exists"</div>
+                  <div class="error-fix">→ Run <code style="color:var(--accent)">git remote remove origin</code> first, then add it again.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="t-step" onclick="toggleStep(this)">
+          <div class="t-step-header">
+            <span class="t-step-num">STEP 5</span>
+            <span class="t-step-label">Stage all your files</span>
+            <span class="t-step-cmd">git add .</span>
+            <span class="t-step-chevron">▶</span>
+          </div>
+          <div class="t-step-body">
+            <div class="terminal-line">
+              <span class="prompt">E:\Portfolio\MyProject&gt;</span>
+              <span class="cmd">git add .</span>
+            </div>
+            <div class="terminal-line" style="margin-top:6px;">
+              <span style="color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:0.8rem;">ℹ️ The dot (.) means "everything in this folder." You can also stage one file: git add index.html</span>
+            </div>
+            <button class="t-copy-btn" onclick="event.stopPropagation();copyText('git add .',this)">📋 Copy</button>
+          </div>
+        </div>
+
+        <!-- Step 6 -->
+        <div class="t-step" onclick="toggleStep(this)">
+          <div class="t-step-header">
+            <span class="t-step-num">STEP 6</span>
+            <span class="t-step-label">Commit — save a snapshot</span>
+            <span class="t-step-cmd">git commit -m "Initial commit"</span>
+            <span class="t-step-chevron">▶</span>
+          </div>
+          <div class="t-step-body">
+            <div class="terminal-line">
+              <span class="prompt">E:\Portfolio\MyProject&gt;</span>
+              <span class="cmd">git commit -m "Initial commit"</span>
+            </div>
+            <div class="terminal-line" style="margin-top:6px;">
+              <span style="color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:0.8rem;">ℹ️ The message in quotes is your commit note. Make it descriptive: "Add homepage layout" not "stuff".</span>
+            </div>
+            <button class="t-copy-btn" onclick="event.stopPropagation();copyText('git commit -m "Initial commit"',this)">📋 Copy</button>
+            <div class="error-panel">
+              <div class="error-panel-header" onclick="event.stopPropagation();toggleError(this)">
+                ⚠ Common errors with this step <span style="margin-left:auto;font-size:0.7rem;color:var(--text3)">▼</span>
+              </div>
+              <div class="error-panel-body">
+                <div class="error-item">
+                  <div class="error-cmd">"nothing to commit, working tree clean"</div>
+                  <div class="error-fix">→ Either you already committed, or git add didn't stage anything. Run <code style="color:var(--accent)">git status</code> to see what's happening.</div>
+                </div>
+                <div class="error-item">
+                  <div class="error-cmd">"Please tell me who you are" error</div>
+                  <div class="error-fix">→ You skipped Step 3 in the Install section. Run git config --global user.name and user.email.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 7 -->
+        <div class="t-step" onclick="toggleStep(this)">
+          <div class="t-step-header">
+            <span class="t-step-num">STEP 7</span>
+            <span class="t-step-label">Push to GitHub 🎉</span>
+            <span class="t-step-cmd">git push -u origin master</span>
+            <span class="t-step-chevron">▶</span>
+          </div>
+          <div class="t-step-body">
+            <div class="terminal-line">
+              <span class="prompt">E:\Portfolio\MyProject&gt;</span>
+              <span class="cmd">git push -u origin master</span>
+            </div>
+            <div class="terminal-line" style="margin-top:6px;">
+              <span style="color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:0.8rem;">ℹ️ After this, future pushes only need: git push (no flags needed)</span>
+            </div>
+            <button class="t-copy-btn" onclick="event.stopPropagation();copyText('git push -u origin master',this)">📋 Copy</button>
+            <div class="error-panel">
+              <div class="error-panel-header" onclick="event.stopPropagation();toggleError(this)">
+                ⚠ Common errors with this step <span style="margin-left:auto;font-size:0.7rem;color:var(--text3)">▼</span>
+              </div>
+              <div class="error-panel-body">
+                <div class="error-item">
+                  <div class="error-cmd">"src refspec main does not match any"</div>
+                  <div class="error-fix">→ Your branch is called "master" not "main". Use: <code style="color:var(--accent)">git push -u origin master</code></div>
+                </div>
+                <div class="error-item">
+                  <div class="error-cmd">HTTP 408 timeout / RPC failed</div>
+                  <div class="error-fix">→ Run: <code style="color:var(--accent)">git config --global http.postBuffer 524288000</code> then try again. Or use the web upload below.</div>
+                </div>
+                <div class="error-item">
+                  <div class="error-cmd">"Everything up-to-date"</div>
+                  <div class="error-fix">→ Actually good news — your files are already on GitHub. Check your repo in the browser.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /terminal-steps -->
+    </div><!-- /terminal-wrapper -->
+
+    <div class="alt-upload" style="margin-top:24px;">
+      <h3>🌐 Alternative: GitHub Web Upload (Drag &amp; Drop)</h3>
+      <p style="color:var(--text2);font-size:0.87rem;margin-top:8px;">If CMD is giving you grief, go to your repo on GitHub → click <strong style="color:var(--text)">uploading an existing file</strong> → drag and drop your files → click <strong style="color:var(--green)">Commit changes</strong>. It's slower but it works every time.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── SECTION 6: EVERYDAY GIT COMMANDS ── -->
+<section id="everyday-commands">
+  <div class="container-wide">
+    <div class="container" style="padding-bottom:0;">
+      <div class="section-tag">⚡ Reference</div>
+      <h2 class="section-title">Everyday Git Commands</h2>
+      <p class="section-subtitle">The 10 commands you'll use 90% of the time. Memorize these.</p>
+    </div>
+
+    <div class="cmd-grid" style="padding:0 24px;max-width:1100px;margin:0 auto;">
+      <div class="cmd-card">
+        <div class="command">git status</div>
+        <div class="desc">See which files changed, what's staged, and what's not tracked yet.</div>
+        <div class="example">git status</div>
+      </div>
+      <div class="cmd-card">
+        <div class="command">git add .</div>
+        <div class="desc">Stage ALL changed files — gets them ready to be committed.</div>
+        <div class="example">git add .</div>
+      </div>
+      <div class="cmd-card">
+        <div class="command">git add filename</div>
+        <div class="desc">Stage just one specific file instead of everything.</div>
+        <div class="example">git add index.html</div>
+      </div>
+      <div class="cmd-card">
+        <div class="command">git commit -m ""</div>
+        <div class="desc">Save a snapshot of your staged changes with a message.</div>
+        <div class="example">git commit -m "Fix nav bug"</div>
+      </div>
+      <div class="cmd-card">
+        <div class="command">git push</div>
+        <div class="desc">Send your local commits up to GitHub. Do this after every commit.</div>
+        <div class="example">git push</div>
+      </div>
+      <div class="cmd-card">
+        <div class="command">git pull</div>
+        <div class="desc">Download the latest changes from GitHub to your local machine.</div>
+        <div class="example">git pull</div>
+      </div>
+      <div class="cmd-card">
+        <div class="command">git clone URL</div>
+        <div class="desc">Download an entire repo from GitHub to your local machine.</div>
+        <div class="example">git clone https://github.com/user/repo.git</div>
+      </div>
+      <div class="cmd-card">
+        <div class="command">git log</div>
+        <div class="desc">See the full history of commits — who made what change and when.</div>
+        <div class="example">git log --oneline</div>
+      </div>
+      <div class="cmd-card">
+        <div class="command">git branch</div>
+        <div class="desc">List all branches in your repo. The current one has an asterisk.</div>
+        <div class="example">git branch</div>
+      </div>
+      <div class="cmd-card">
+        <div class="command">git checkout -b</div>
+        <div class="desc">Create a new branch and switch to it immediately.</div>
+        <div class="example">git checkout -b feature-login</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 7: CMD COMMANDS ── -->
+<section id="cmd-commands">
+  <div class="container">
+    <div class="section-tag">⌨️ Windows CMD</div>
+    <h2 class="section-title">Windows CMD — Essential Commands</h2>
+    <p class="section-subtitle">Filter by category or search. These work in any CMD window.</p>
+
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="cmdSearch" placeholder="Search commands... e.g. ping, cd, tasklist" oninput="filterCmdTable()">
+    </div>
+
+    <div class="cmd-tabs">
+      <button class="tab-btn active" onclick="filterTab('all', this)">All</button>
+      <button class="tab-btn" onclick="filterTab('nav', this)">🗂 Navigation</button>
+      <button class="tab-btn" onclick="filterTab('net', this)">🌐 Network</button>
+      <button class="tab-btn" onclick="filterTab('sys', this)">⚙️ System</button>
+      <button class="tab-btn" onclick="filterTab('file', this)">📁 Files</button>
+    </div>
+
+    <div class="cmd-table-wrap">
+      <table id="cmdTable">
+        <thead>
+          <tr>
+            <th>Command</th>
+            <th>What It Does</th>
+            <th>Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-cat="nav"><td>cd</td><td>Change directory (navigate into a folder)</td><td>cd Documents\Projects</td></tr>
+          <tr data-cat="nav"><td>cd ..</td><td>Go up one folder level</td><td>cd ..</td></tr>
+          <tr data-cat="nav"><td>dir</td><td>List files and folders in current directory</td><td>dir</td></tr>
+          <tr data-cat="nav"><td>E:</td><td>Switch to the E: drive (replace with any letter)</td><td>D:</td></tr>
+          <tr data-cat="nav"><td>mkdir</td><td>Create a new folder</td><td>mkdir MyProject</td></tr>
+          <tr data-cat="nav"><td>cls</td><td>Clear the CMD screen</td><td>cls</td></tr>
+          <tr data-cat="nav"><td>pwd</td><td>Print current working directory (Git Bash)</td><td>pwd</td></tr>
+          <tr data-cat="net"><td>ipconfig</td><td>Show your IP address and network config</td><td>ipconfig</td></tr>
+          <tr data-cat="net"><td>ipconfig /all</td><td>Detailed IP info including MAC address</td><td>ipconfig /all</td></tr>
+          <tr data-cat="net"><td>ipconfig /release</td><td>Release your current IP address</td><td>ipconfig /release</td></tr>
+          <tr data-cat="net"><td>ipconfig /renew</td><td>Get a new IP address from DHCP</td><td>ipconfig /renew</td></tr>
+          <tr data-cat="net"><td>ipconfig /flushdns</td><td>Clear the DNS cache (fixes some website errors)</td><td>ipconfig /flushdns</td></tr>
+          <tr data-cat="net"><td>ping</td><td>Test if a server/website is reachable</td><td>ping google.com</td></tr>
+          <tr data-cat="net"><td>tracert</td><td>Trace the network route to a destination</td><td>tracert google.com</td></tr>
+          <tr data-cat="net"><td>netstat</td><td>Show active network connections</td><td>netstat -an</td></tr>
+          <tr data-cat="net"><td>nslookup</td><td>Look up the IP address of a domain</td><td>nslookup github.com</td></tr>
+          <tr data-cat="sys"><td>tasklist</td><td>Show all running processes</td><td>tasklist</td></tr>
+          <tr data-cat="sys"><td>taskkill</td><td>Force-kill a process by name or PID</td><td>taskkill /f /im chrome.exe</td></tr>
+          <tr data-cat="sys"><td>systeminfo</td><td>Display full system info (OS, RAM, CPU, etc.)</td><td>systeminfo</td></tr>
+          <tr data-cat="sys"><td>shutdown /s</td><td>Shut down the computer</td><td>shutdown /s /t 0</td></tr>
+          <tr data-cat="sys"><td>shutdown /r</td><td>Restart the computer</td><td>shutdown /r /t 0</td></tr>
+          <tr data-cat="sys"><td>ver</td><td>Display Windows version</td><td>ver</td></tr>
+          <tr data-cat="sys"><td>getmac</td><td>Show your network adapter's MAC address</td><td>getmac</td></tr>
+          <tr data-cat="sys"><td>gpupdate /force</td><td>Force refresh Group Policy settings</td><td>gpupdate /force</td></tr>
+          <tr data-cat="sys"><td>powercfg -energy</td><td>Run a 60-sec power efficiency diagnostic</td><td>powercfg -energy</td></tr>
+          <tr data-cat="file"><td>copy</td><td>Copy a file to another location</td><td>copy file.txt D:\Backup\</td></tr>
+          <tr data-cat="file"><td>move</td><td>Move a file to another location</td><td>move file.txt D:\Backup\</td></tr>
+          <tr data-cat="file"><td>del</td><td>Delete a file permanently</td><td>del oldfile.txt</td></tr>
+          <tr data-cat="file"><td>type</td><td>Display the contents of a text file</td><td>type readme.txt</td></tr>
+          <tr data-cat="file"><td>fc</td><td>Compare two files and show differences</td><td>fc file1.txt file2.txt</td></tr>
+          <tr data-cat="file"><td>rmdir /s</td><td>Delete a folder and all its contents</td><td>rmdir /s /q OldProject</td></tr>
+          <tr data-cat="file"><td>xcopy</td><td>Copy files and folder trees</td><td>xcopy src\ dest\ /s /e</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 8: WIN+R ── -->
+<section id="winr">
+  <div class="container">
+    <div class="section-tag">⊞ Win+R</div>
+    <h2 class="section-title">Win+R Run Dialog Cheat Sheet</h2>
+    <p class="section-subtitle">Press <kbd style="background:var(--bg3);border:1.5px solid var(--border2);padding:2px 7px;border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;">Win + R</kbd>, type a command, hit Enter. Click any card to copy the command.</p>
+
+    <div style="font-size:0.8rem;color:var(--text3);margin-bottom:20px;">🖱️ Click any card to copy the command to clipboard</div>
+
+    <div style="font-size:0.85rem;font-weight:700;color:var(--text2);margin-bottom:10px;letter-spacing:0.05em;text-transform:uppercase;">🛠 System Utilities</div>
+    <div class="winr-grid">
+      <div class="winr-card" onclick="copyWinR('taskmgr',this)"><div class="winr-cmd">taskmgr</div><div class="winr-desc">Task Manager</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('msconfig',this)"><div class="winr-cmd">msconfig</div><div class="winr-desc">System Configuration</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('regedit',this)"><div class="winr-cmd">regedit</div><div class="winr-desc">Registry Editor</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('services.msc',this)"><div class="winr-cmd">services.msc</div><div class="winr-desc">Services Manager</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('eventvwr.msc',this)"><div class="winr-cmd">eventvwr.msc</div><div class="winr-desc">Event Viewer</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('resmon',this)"><div class="winr-cmd">resmon</div><div class="winr-desc">Resource Monitor</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('perfmon',this)"><div class="winr-cmd">perfmon</div><div class="winr-desc">Performance Monitor</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('gpedit.msc',this)"><div class="winr-cmd">gpedit.msc</div><div class="winr-desc">Group Policy Editor</div><span class="winr-copy-hint">click to copy</span></div>
+    </div>
+
+    <div style="font-size:0.85rem;font-weight:700;color:var(--text2);margin:28px 0 10px;letter-spacing:0.05em;text-transform:uppercase;">⚙️ Control Panel &amp; Settings</div>
+    <div class="winr-grid">
+      <div class="winr-card" onclick="copyWinR('ncpa.cpl',this)"><div class="winr-cmd">ncpa.cpl</div><div class="winr-desc">Network Connections</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('devmgmt.msc',this)"><div class="winr-cmd">devmgmt.msc</div><div class="winr-desc">Device Manager</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('sysdm.cpl',this)"><div class="winr-cmd">sysdm.cpl</div><div class="winr-desc">System Properties</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('firewall.cpl',this)"><div class="winr-cmd">firewall.cpl</div><div class="winr-desc">Windows Firewall</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('diskmgmt.msc',this)"><div class="winr-cmd">diskmgmt.msc</div><div class="winr-desc">Disk Management</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('appwiz.cpl',this)"><div class="winr-cmd">appwiz.cpl</div><div class="winr-desc">Programs &amp; Features</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('powercfg.cpl',this)"><div class="winr-cmd">powercfg.cpl</div><div class="winr-desc">Power Options</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('inetcpl.cpl',this)"><div class="winr-cmd">inetcpl.cpl</div><div class="winr-desc">Internet Properties</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('desk.cpl',this)"><div class="winr-cmd">desk.cpl</div><div class="winr-desc">Display Properties</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('mmsys.cpl',this)"><div class="winr-cmd">mmsys.cpl</div><div class="winr-desc">Sound Settings</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('timedate.cpl',this)"><div class="winr-cmd">timedate.cpl</div><div class="winr-desc">Date &amp; Time Properties</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('intl.cpl',this)"><div class="winr-cmd">intl.cpl</div><div class="winr-desc">Regional Settings</div><span class="winr-copy-hint">click to copy</span></div>
+    </div>
+
+    <div style="font-size:0.85rem;font-weight:700;color:var(--text2);margin:28px 0 10px;letter-spacing:0.05em;text-transform:uppercase;">📁 Files &amp; Folders</div>
+    <div class="winr-grid">
+      <div class="winr-card" onclick="copyWinR('.',this)"><div class="winr-cmd">.</div><div class="winr-desc">Current User's Home Folder</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('%temp%',this)"><div class="winr-cmd">%temp%</div><div class="winr-desc">Temp Files Folder</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('shell:startup',this)"><div class="winr-cmd">shell:startup</div><div class="winr-desc">Startup Programs Folder</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('explorer.exe',this)"><div class="winr-cmd">explorer.exe</div><div class="winr-desc">Open File Explorer</div><span class="winr-copy-hint">click to copy</span></div>
+    </div>
+
+    <div style="font-size:0.85rem;font-weight:700;color:var(--text2);margin:28px 0 10px;letter-spacing:0.05em;text-transform:uppercase;">🎨 Built-in Apps</div>
+    <div class="winr-grid">
+      <div class="winr-card" onclick="copyWinR('calc',this)"><div class="winr-cmd">calc</div><div class="winr-desc">Calculator</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('notepad',this)"><div class="winr-cmd">notepad</div><div class="winr-desc">Notepad</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('mspaint',this)"><div class="winr-cmd">mspaint</div><div class="winr-desc">Microsoft Paint</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('snippingtool',this)"><div class="winr-cmd">snippingtool</div><div class="winr-desc">Snipping Tool</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('osk',this)"><div class="winr-cmd">osk</div><div class="winr-desc">On-Screen Keyboard</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('mstsc',this)"><div class="winr-cmd">mstsc</div><div class="winr-desc">Remote Desktop</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('write',this)"><div class="winr-cmd">write</div><div class="winr-desc">WordPad</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('charmap',this)"><div class="winr-cmd">charmap</div><div class="winr-desc">Character Map</div><span class="winr-copy-hint">click to copy</span></div>
+    </div>
+
+    <div style="font-size:0.85rem;font-weight:700;color:var(--text2);margin:28px 0 10px;letter-spacing:0.05em;text-transform:uppercase;">🧹 Maintenance &amp; Diagnostics</div>
+    <div class="winr-grid">
+      <div class="winr-card" onclick="copyWinR('cleanmgr',this)"><div class="winr-cmd">cleanmgr</div><div class="winr-desc">Disk Cleanup</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('winver',this)"><div class="winr-cmd">winver</div><div class="winr-desc">Windows Version Info</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('msinfo32',this)"><div class="winr-cmd">msinfo32</div><div class="winr-desc">System Information</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('mrt',this)"><div class="winr-cmd">mrt</div><div class="winr-desc">Malware Removal Tool</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('dxdiag',this)"><div class="winr-cmd">dxdiag</div><div class="winr-desc">DirectX Diagnostic</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('dfrg.msc',this)"><div class="winr-cmd">dfrg.msc</div><div class="winr-desc">Disk Defragmenter</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('verifier',this)"><div class="winr-cmd">verifier</div><div class="winr-desc">Driver Verifier</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('mdsched',this)"><div class="winr-cmd">mdsched</div><div class="winr-desc">Memory Diagnostic</div><span class="winr-copy-hint">click to copy</span></div>
+    </div>
+
+    <div style="font-size:0.85rem;font-weight:700;color:var(--text2);margin:28px 0 10px;letter-spacing:0.05em;text-transform:uppercase;">🌐 Network &amp; Remote</div>
+    <div class="winr-grid">
+      <div class="winr-card" onclick="copyWinR('mstsc',this)"><div class="winr-cmd">mstsc</div><div class="winr-desc">Remote Desktop</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('wf.msc',this)"><div class="winr-cmd">wf.msc</div><div class="winr-desc">Firewall Advanced Settings</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('secpol.msc',this)"><div class="winr-cmd">secpol.msc</div><div class="winr-desc">Local Security Policy</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('fsmgmt.msc',this)"><div class="winr-cmd">fsmgmt.msc</div><div class="winr-desc">Shared Folders</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('lusrmgr.msc',this)"><div class="winr-cmd">lusrmgr.msc</div><div class="winr-desc">Local Users &amp; Groups</div><span class="winr-copy-hint">click to copy</span></div>
+      <div class="winr-card" onclick="copyWinR('compmgmt.msc',this)"><div class="winr-cmd">compmgmt.msc</div><div class="winr-desc">Computer Management</div><span class="winr-copy-hint">click to copy</span></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── SECTION 9: SYSTEM REPAIR ── -->
+<section id="repair">
+  <div class="container">
+    <div class="section-tag">🛡️ System Health</div>
+    <h2 class="section-title">System Repair: DISM &amp; SFC</h2>
+    <p class="section-subtitle">Windows acting weird? Corrupted files? Here's how to fix it like a pro.</p>
+
+    <div class="warning-banner">
+      <span class="icon">⚠️</span>
+      <div>Run CMD as Administrator — right-click CMD → "Run as administrator". These commands won't work without elevated privileges.</div>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare-card">
+        <h3>DISM <span class="badge badge-high">Higher Level</span></h3>
+        <ul>
+          <li>Repairs the Windows OS image itself</li>
+          <li>Connects to Windows Update to get clean files</li>
+          <li>Run this FIRST, before SFC</li>
+          <li>Takes 10–30 minutes (normal to stall at 20%)</li>
+          <li>Required if SFC fails or keeps failing</li>
+        </ul>
+      </div>
+      <div class="compare-card">
+        <h3>SFC <span class="badge badge-low">File Level</span></h3>
+        <ul>
+          <li>Scans and repairs protected system files</li>
+          <li>Works from the repaired image DISM creates</li>
+          <li>Run this AFTER DISM completes</li>
+          <li>Usually takes 5–15 minutes</li>
+          <li>Fixes blue screens, missing DLLs, crashing apps</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 style="font-size:1rem;font-weight:700;margin:28px 0 16px;color:var(--text);">Step-by-Step Repair Order</h3>
+
+    <div class="repair-steps">
+      <div class="repair-step">
+        <div class="r-num">1</div>
+        <div>
+          <h3>DISM CheckHealth — Quick check</h3>
+          <p style="margin-bottom:10px;">Fast scan to see if the image is flagged as corrupt. Doesn't fix anything.</p>
+          <div class="code-wrap">
+            <div class="code-header">
+              <div class="dots"><span></span><span></span><span></span></div>
+              <span class="code-lang">cmd (Admin)</span>
+              <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+            </div>
+            <pre><code class="language-bash">DISM /Online /Cleanup-Image /CheckHealth</code></pre>
+          </div>
+        </div>
+      </div>
+      <div class="repair-step">
+        <div class="r-num">2</div>
+        <div>
+          <h3>DISM ScanHealth — Deeper scan</h3>
+          <p style="margin-bottom:10px;">More thorough. Scans the image for corruption but still doesn't repair. Takes a few minutes.</p>
+          <div class="code-wrap">
+            <div class="code-header">
+              <div class="dots"><span></span><span></span><span></span></div>
+              <span class="code-lang">cmd (Admin)</span>
+              <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+            </div>
+            <pre><code class="language-bash">DISM /Online /Cleanup-Image /ScanHealth</code></pre>
+          </div>
+        </div>
+      </div>
+      <div class="repair-step">
+        <div class="r-num">3</div>
+        <div>
+          <h3>DISM RestoreHealth — Actually fixes it</h3>
+          <p style="margin-bottom:10px;">Downloads clean files from Windows Update and repairs corruption. This one takes 15–30 min. Don't panic if it stalls at 20% or 62% — that's normal.</p>
+          <div class="code-wrap">
+            <div class="code-header">
+              <div class="dots"><span></span><span></span><span></span></div>
+              <span class="code-lang">cmd (Admin)</span>
+              <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+            </div>
+            <pre><code class="language-bash">DISM /Online /Cleanup-Image /RestoreHealth</code></pre>
+          </div>
+        </div>
+      </div>
+      <div class="repair-step">
+        <div class="r-num">4</div>
+        <div>
+          <h3>SFC /scannow — Repair system files</h3>
+          <p style="margin-bottom:10px;">Now that DISM has fixed the image, SFC can use it to repair individual corrupted system files. Restart your PC when it finishes.</p>
+          <div class="code-wrap">
+            <div class="code-header">
+              <div class="dots"><span></span><span></span><span></span></div>
+              <span class="code-lang">cmd (Admin)</span>
+              <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+            </div>
+            <pre><code class="language-bash">sfc /scannow</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-box" style="margin-top:20px;">
+      <strong>📀 Offline Repair (when internet fails):</strong> Download a Windows ISO from <a href="https://www.microsoft.com/en-us/software-download/windows11" target="_blank" style="color:var(--accent)">microsoft.com</a>, mount it (double-click the .iso), note its drive letter, then run:<br><br>
+      <code style="font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:var(--terminal-green);">DISM /Online /Cleanup-Image /RestoreHealth /Source:F:\Sources\install.wim /LimitAccess</code><br>
+      <span style="font-size:0.8rem;color:var(--text3);margin-top:6px;display:block;">Replace F: with your ISO drive letter.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 10: PRO TIPS ── -->
+<section id="pro-tips">
+  <div class="container">
+    <div class="section-tag">🧠 Power User</div>
+    <h2 class="section-title">Pro Tips</h2>
+    <p class="section-subtitle">Small things that save you massive time. Use them daily.</p>
+
+    <div class="tips-grid">
+      <div class="tip-card">
+        <span class="tip-icon">⇥</span>
+        <h3>Tab Completion</h3>
+        <p>Start typing a folder name and press <kbd style="background:var(--bg3);border:1px solid var(--border2);padding:1px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:0.78rem;">Tab</kbd> to autocomplete it. Press Tab multiple times to cycle through matches. Saves half your typing.</p>
+      </div>
+      <div class="tip-card">
+        <span class="tip-icon">↑↓</span>
+        <h3>Command History</h3>
+        <p>Press the <kbd style="background:var(--bg3);border:1px solid var(--border2);padding:1px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:0.78rem;">↑</kbd> and <kbd style="background:var(--bg3);border:1px solid var(--border2);padding:1px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:0.78rem;">↓</kbd> arrow keys to cycle through previously typed commands. Stop retyping the same thing.</p>
+      </div>
+      <div class="tip-card">
+        <span class="tip-icon">🔐</span>
+        <h3>Run as Administrator</h3>
+        <p>For DISM, SFC, and any system-level commands: right-click CMD or PowerShell and select <strong>"Run as administrator"</strong>. Without this, half the commands are blocked.</p>
+      </div>
+      <div class="tip-card">
+        <span class="tip-icon">❓</span>
+        <h3>Built-in Help System</h3>
+        <p>Add <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--accent)">/?</code> to any command to see all options. Works for everything:<br>
+        <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--terminal-green);">ipconfig /?</code> &nbsp; <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--terminal-green);">git --help</code></p>
+      </div>
+      <div class="tip-card">
+        <span class="tip-icon">📋</span>
+        <h3>Quick Copy in CMD</h3>
+        <p>Right-click in CMD → Properties → enable <strong>QuickEdit Mode</strong>. Then you can select text with a click and drag, and right-click to paste. No more Ctrl+C nonsense.</p>
+      </div>
+      <div class="tip-card">
+        <span class="tip-icon">🔄</span>
+        <h3>Git .gitignore</h3>
+        <p>Create a file named <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--accent)">.gitignore</code> in your project. List files/folders you never want to push (like <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--text3)">node_modules/</code> or <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--text3)">.env</code>). Git will ignore them forever.</p>
+      </div>
+      <div class="tip-card">
+        <span class="tip-icon">⚡</span>
+        <h3>PowerShell &gt; CMD</h3>
+        <p>For advanced tasks, use PowerShell instead of CMD. It supports the same commands PLUS scripting, loops, and more power. Open it via <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--accent)">Win+R → powershell</code>.</p>
+      </div>
+      <div class="tip-card">
+        <span class="tip-icon">🌿</span>
+        <h3>Git Branches</h3>
+        <p>Never work directly on <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--accent)">master</code>. Create a branch for each feature, test it, then merge. This keeps your main codebase clean and stable.</p>
+      </div>
+    </div>
+
+    <div class="code-wrap" style="margin-top:28px;">
+      <div class="code-header">
+        <div class="dots"><span></span><span></span><span></span></div>
+        <span class="code-lang">Quick Reference — Daily Git Workflow</span>
+        <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+      </div>
+      <pre><code class="language-bash"># Every time you make changes:
+git status            # Check what changed
+git add .             # Stage everything
+git commit -m "msg"   # Save snapshot
+git push              # Send to GitHub
+
+# Or all in one line (alias this):
+git add . && git commit -m "update" && git push</code></pre>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-tagline">Built for beginners. <span>No BS.</span></div>
+  <div class="footer-links">
+    <a href="https://git-scm.com/doc" target="_blank">Git Docs</a>
+    <a href="https://docs.github.com/en/get-started" target="_blank">GitHub Docs</a>
+    <a href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/windows-commands" target="_blank">CMD Reference</a>
+    <a href="#hero">↑ Back to Top</a>
+  </div>
+  <div class="footer-copy">GitReady — A no-fluff guide to Git, GitHub, CMD &amp; Windows utilities.</div>
+</footer>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast">✓ Copied to clipboard</div>
+
+<script>
+// ── HIGHLIGHT.JS ──
+document.addEventListener('DOMContentLoaded', function() {
+  hljs.highlightAll();
+});
+
+// ── HAMBURGER ──
+const hamburger = document.getElementById('hamburger');
+const mobileMenu = document.getElementById('mobileMenu');
+hamburger.addEventListener('click', () => {
+  hamburger.classList.toggle('open');
+  mobileMenu.classList.toggle('open');
+});
+function closeMobile() {
+  hamburger.classList.remove('open');
+  mobileMenu.classList.remove('open');
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = '✓ ' + msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+// ── COPY CODE BLOCKS ──
+function copyCode(btn) {
+  const pre = btn.closest('.code-wrap').querySelector('pre code');
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.classList.add('copied');
+    btn.textContent = '✓ Copied!';
+    showToast('Copied to clipboard');
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.textContent = '📋 Copy';
+    }, 2000);
+  });
+}
+
+// ── COPY TEXT ──
+function copyText(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.classList.add('copied');
+    btn.textContent = '✓ Copied!';
+    showToast('Copied: ' + text);
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.textContent = '📋 Copy';
+    }, 2000);
+  });
+}
+
+// ── WIN+R COPY ──
+function copyWinR(cmd, card) {
+  navigator.clipboard.writeText(cmd).then(() => {
+    card.classList.add('copied');
+    showToast('Copied: ' + cmd);
+    setTimeout(() => card.classList.remove('copied'), 1500);
+  });
+}
+
+// ── TERMINAL STEP TOGGLE ──
+function toggleStep(step) {
+  const isExpanded = step.classList.contains('expanded');
+  document.querySelectorAll('.t-step').forEach(s => s.classList.remove('expanded'));
+  if (!isExpanded) step.classList.add('expanded');
+}
+
+// ── ERROR PANEL TOGGLE ──
+function toggleError(header) {
+  header.parentElement.classList.toggle('open');
+}
+
+// ── CMD TABLE FILTER ──
+let currentCat = 'all';
+
+function filterCmdTable() {
+  const search = document.getElementById('cmdSearch').value.toLowerCase();
+  const rows = document.querySelectorAll('#cmdTable tbody tr');
+  rows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    const cat = row.getAttribute('data-cat');
+    const catMatch = currentCat === 'all' || cat === currentCat;
+    const searchMatch = !search || text.includes(search);
+    row.classList.toggle('hidden', !catMatch || !searchMatch);
+  });
+}
+
+function filterTab(cat, btn) {
+  currentCat = cat;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterCmdTable();
+}
+
+// ── PROGRESS INDICATOR ──
+const sections = ['hero','what-is-git','installing','create-repo','uploading','everyday-commands','cmd-commands','winr','repair','pro-tips'];
+const dots = document.querySelectorAll('.prog-dot');
+
+dots.forEach((dot, i) => {
+  dot.addEventListener('click', () => {
+    document.getElementById(sections[i]).scrollIntoView({ behavior: 'smooth' });
+  });
+});
+
+function updateProgress() {
+  const scrollY = window.scrollY + window.innerHeight * 0.4;
+  let current = 0;
+  sections.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (el && el.offsetTop <= scrollY) current = i;
+  });
+  dots.forEach((dot, i) => {
+    dot.classList.remove('active', 'passed');
+    if (i === current) dot.classList.add('active');
+    else if (i < current) dot.classList.add('passed');
+  });
+}
+
+window.addEventListener('scroll', updateProgress, { passive: true });
+updateProgress();
+</script>
+</body>
+</html>
